@@ -10,9 +10,9 @@ m1 = 3   # Masa del primer objeto
 m2 = 1    # Masa del segundo objeto
 g = 9.8   # Aceleración debido a la gravedad
 
-theta1 = 1  # Ángulo inicial del primer péndulo (90 grados)
+theta1 = 1 # Ángulo inicial del primer péndulo (90 grados)
 theta2 = -1  # Ángulo inicial del segundo péndulo (90 grados)
-omega1 = 0          # Velocidad angular inicial del primer péndulo
+omega1 = 1         # Velocidad angular inicial del primer péndulo
 omega2 = 0           # Velocidad angular inicial del segundo péndulo
 
 # Función para actualizar las posiciones de los péndulos
@@ -39,26 +39,30 @@ def update_position():
 
 
 
-#Listas para almacenar los valores de theta1 y theta2
 theta1_values = []
 theta2_values = []
 
-#Bucle principal
-for _ in range(500):  
-    x1 = l1 * math.sin(theta1) #Obtener coordenadas x e y de los péndulos
+# Variables para almacenar los valores de tiempo y el incremento de tiempo
+total_time = 0
+dt = 0.05  # Incremento de tiempo
+
+# Bucle principal
+for _ in range(1000):
+    x1 = l1 * math.sin(theta1)
     y1 = -l1 * math.cos(theta1)
 
     x2 = x1 + l2 * math.sin(theta2)
     y2 = y1 - l2 * math.cos(theta2)
 
-    # Guardar los desplazamientos angulares actuales
     theta1_values.append(theta1)
     theta2_values.append(theta2)
 
-    update_position() #Actualizar las posiciones de los péndulos
+    update_position()
+
+    total_time += dt  # Incrementar el tiempo en cada iteración
 
 # Graficar los desplazamientos angulares a través del tiempo
-time_values = np.arange(0, len(theta1_values) * 0.05, 0.05)  #Obtener los valores del tiempo
+time_values = np.arange(0, total_time, dt)  # Usar el tiempo acumulado
 
 plt.plot(time_values, theta1_values, label='Theta1')
 plt.plot(time_values, theta2_values, label='Theta2')

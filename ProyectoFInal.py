@@ -16,7 +16,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 from mpl_interactions import ioff, panhandler, zoom_factory
 
 
-turtle.speed(0)
+turtle.speed(10000)
 turtle.bgcolor("white")
 
 

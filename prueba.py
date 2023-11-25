@@ -1,51 +1,72 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.integrate import solve_ivp
+import turtle
+import math
 
-# Define the double pendulum system of ODEs
-def double_pendulum(t, y, l1, l2, m1, m2, g):
-    theta1, omega1, theta2, omega2 = y
 
-    dydt = [
-        omega1,
-        (-g * (2 * m1 + m2) * np.sin(theta1) - m2 * g * np.sin(theta1 - 2 * theta2)
-         - 2 * np.sin(theta1 - theta2) * m2 * (omega2**2 * l2 + omega1**2 * l1 * np.cos(theta1 - theta2))) /
-        (l1 * (2 * m1 + m2 - m2 * np.cos(2 * theta1 - 2 * theta2))),
-        omega2,
-        (2 * np.sin(theta1 - theta2) * (omega1**2 * l1 * (m1 + m2) + g * (m1 + m2) * np.cos(theta1)
-         + omega2**2 * l2 * m2 * np.cos(theta1 - theta2))) /
-        (l2 * (2 * m1 + m2 - m2 * np.cos(2 * theta1 - 2 * theta2)))
-    ]
+l1 = 16  # Longitud del primer péndulo
+l2 = 16  # Longitud del segundo péndulo
+m1 = 3   # Masa del primer objeto
+m2 = 1    # Masa del segundo objeto
+g = 9.8   # Aceleración debido a la gravedad
 
-    return dydt
+theta1 = 0  # Ángulo inicial del primer péndulo (90 grados)
+theta2 = -1  # Ángulo inicial del segundo péndulo (90 grados)
+omega1 = 0          # Velocidad angular inicial del primer péndulo
+omega2 = 0           # Velocidad angular inicial del segundo péndulo
 
-# Set up initial conditions
-initial_conditions = [np.pi/2, 0, np.pi, 0]  # [theta1, omega1, theta2, omega2]
+# Función para actualizar las posiciones de los péndulos
+def update_position():
+    global theta1, theta2, omega1, omega2
+    dt = 0.05  # Incremento de tiempo
 
-# Set up parameters
-length1 = 14.0
-length2 = 16.0
-mass1 = 6.0
-mass2 = 1.0
-gravity = 9.8
+    # Fórmulas de movimiento angular
+    alpha1 = (-g * (2 * m1 + m2) * math.sin(theta1) - m2 * g * math.sin(theta1 - 2 * theta2) -
+              2 * m2 * math.sin(theta1 - theta2) * (omega2 ** 2 * l2 + omega1 ** 2 * l1 * math.cos(theta1 - theta2))) / \
+             (l1 * (2 * m1 + m2 - m2 * math.cos(2 * theta1 - 2 * theta2)))
 
-# Set up time span
-t_span = (0, 10)
-t_eval = np.linspace(t_span[0], t_span[1], 1000)
+    alpha2 = (2 * math.sin(theta1 - theta2) * (omega1 ** 2 * l1 * (m1 + m2) + g * (m1 + m2) * math.cos(theta1) +
+                                               omega2 ** 2 * l2 * m2 * math.cos(theta1 - theta2))) / \
+             (l2 * (2 * m1 + m2 - m2 * math.cos(2 * theta1 - 2 * theta2)))
 
-# Numerically solve the ODEs
-solution = solve_ivp(double_pendulum, t_span, initial_conditions, args=(length1, length2, mass1, mass2, gravity),
-                     t_eval=t_eval, method='RK45')
+    # Actualizar velocidades angulares
+    omega1 += alpha1 * dt
+    omega2 += alpha2 * dt
 
-# Extract the solution
-theta1, omega1, theta2, omega2 = solution.y
+    # Actualizar ángulos
+    theta1 += omega1 * dt
+    theta2 += omega2 * dt
 
-# Plot the double pendulum motion
-plt.figure(figsize=(8, 6))
-plt.plot(t_eval, theta1, label='Theta1')
-plt.plot(t_eval, theta2, label='Theta2')
-plt.title('Double Pendulum Motion')
+# Listas para almacenar los valores de theta1 y theta2
+theta1_values = []
+theta2_values = []
+
+# Variables para almacenar los valores de tiempo y el incremento de tiempo
+total_time = 0
+dt = 0.05  # Incremento de tiempo
+
+# Bucle principal
+for _ in range(1000):
+    x1 = l1 * math.sin(theta1)
+    y1 = -l1 * math.cos(theta1)
+
+    x2 = x1 + l2 * math.sin(theta2)
+    y2 = y1 - l2 * math.cos(theta2)
+
+    theta1_values.append(theta1)
+    theta2_values.append(theta2)
+
+    update_position()
+
+    total_time += dt  # Incrementar el tiempo en cada iteración
+
+# Graficar los desplazamientos angulares a través del tiempo
+time_values = np.arange(0, total_time, dt)  # Usar el tiempo acumulado
+
+plt.plot(time_values, theta1_values, label='Theta1')
+plt.plot(time_values, theta2_values, label='Theta2')
+plt.title('Angular Displacement of Double Pendulum')
 plt.xlabel('Time (s)')
-plt.ylabel('Angle (rad)')
+plt.ylabel('Angular Displacement (radians)')
 plt.legend()
 plt.show()
